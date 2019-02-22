@@ -5,7 +5,7 @@ Numerically solves the ellipsometry equations to find the thickness, n, and/or k
 
 These values can be used with equations from https://jameslandry.files.wordpress.com/2012/02/09-appendix-b.pdf to numerically solve for the selected parameters. It will then output the value, MSE, and a plot of the fit along with the data gathered.
 
-A single layer example is provided. The test.py script inside 4.19.16 fresh folder should be run without any changes necessary. A double layer example will be provided once functionality is complete for that case. The output plot should look like 4.19.16-fresh-example-plot.png provide. The shell output should resemble:
+A single layer example is provided. The test.py script inside 4.19.16 fresh folder should be run without any changes necessary. A double layer example will be provided once functionality is complete for that case. The output plot should look like 4.19.16-fresh-example-plot.png that is provided in the main directory. The shell output should resemble:
 
 ```
 MgB2:
