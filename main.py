@@ -86,7 +86,7 @@ if __name__ == '__main__':
     layers = [bot, top]
 
     #Should always be setup substrate->layer 1->...->layer n
-    fit_vars = solve(phi, rho, layers)
+    fit_vars, cov = solve(phi, rho, layers)
 
                     #Double does not function yet
 ##    #Double layer test
@@ -102,4 +102,4 @@ if __name__ == '__main__':
 ##    fit = solve(phi, rho, [bot, mid, top])
 
     #Plot fitted functions with data points
-    plot(phi, rho, fit_vars, layers)    
+    plot(phi, rho, fit_vars, cov, layers)    

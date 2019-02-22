@@ -25,7 +25,7 @@ top = layer('MgB2', 40)
 bot = layer('SiC', 390000)
 
 #Test different combinations of fit variables
-test_vars = ['d']
+test_vars = ['d', 'k']
 if 'd' in test_vars:
     top.set_fit_variables([['d', 45]])
 if 'k' in test_vars:
@@ -36,7 +36,7 @@ if 'n' in test_vars:
 #Should always be setup substrate->layer 1->...->layer n
 layers = [bot, top]
 
-fit_vars = solve(phi, rho, layers)
+fit_vars, cov = solve(phi, rho, layers)
 
 #Plot fitted functions with data points
-plot(phi, rho, fit_vars, layers)   
+plot(phi, rho, fit_vars, cov, layers)   

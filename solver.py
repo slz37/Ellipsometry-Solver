@@ -32,14 +32,20 @@ def solve(phi, rho, layers):
 
     #Ensure proper number of layers
     if len(layers) == 2:
-        coeffs, coeffs_cov = curve_fit(funct.single_layer, xdata, ydata, p0 = guess)
+        coeffs, coeffs_cov = curve_fit(funct.single_layer,
+                                       xdata,
+                                       ydata,
+                                       p0 = guess)
     elif len(layers) == 3:
-        coeffs, coeffs_cov = curve_fit(funct.double_layer, xdata, ydata, p0 = guess)
+        coeffs, coeffs_cov = curve_fit(funct.double_layer,
+                                       xdata,
+                                       ydata,
+                                       p0 = guess)
     else:
         raise Exception('You should have either 2 or 3 layers,' + \
-                        ' but there are only {} layers.'.format(len(layers)))
+                        ' but there are {} layers.'.format(len(layers)))
 
-    return coeffs
+    return coeffs, coeffs_cov
 
 def get_rho_values(x, fit_vars, layers):
     #Function class instantiation
@@ -52,7 +58,7 @@ def get_rho_values(x, fit_vars, layers):
         y_vals = funct.double_layer(x, *fit_vars)
     else:
         raise Exception('You should have either 2 or 3 layers,' + \
-                        ' but there are only {} layers.'.format(len(layers)))
+                        ' but there are {} layers.'.format(len(layers)))
                         
     return y_vals
 
@@ -91,24 +97,24 @@ class layer_functions():
         self.theta1 = np.arcsin(np.sin(x) / (self.n - 1j * self.k))
         self.theta2 = np.arcsin(np.sin(x) / (self.m - 1j * self.l))
 
-        #Beta Equation
+        #Beta Equation = -2gamma
         self.beta = -4 * np.pi * self.d * (self.n - 1j * self.k) * np.cos(self.theta1) / self.lamb
 
         #P-Polarized Equations
-        self.r01p = ((self.n - 1j * self.k) * np.cos(x) - np.cos(self.theta1)) / ((self.n - 1j * self.k) \
-            * np.cos(x) + np.cos(self.theta1))
-        self.r12p = ((self.m - 1j * self.l) * np.cos(self.theta1) - (self.n - 1j * self.k) * np.cos(self.theta2)) \
-            / ((self.m - 1j * self.l) * np.cos(self.theta1) + (self.n - 1j * self.k) * np.cos(self.theta2))
-        self.rptot = (self.r01p + self.r12p * np.exp(1j * self.beta)) / (1 + self.r01p * self.r12p * \
-            np.exp(1j * self.beta))
+        self.r01p = ((self.n - 1j * self.k) * np.cos(x) - np.cos(self.theta1)) / \
+                    ((self.n - 1j * self.k) * np.cos(x) + np.cos(self.theta1))
+        self.r12p = ((self.m - 1j * self.l) * np.cos(self.theta1) - (self.n - 1j * self.k) * np.cos(self.theta2)) / \
+                    ((self.m - 1j * self.l) * np.cos(self.theta1) + (self.n - 1j * self.k) * np.cos(self.theta2))
+        self.rptot = (self.r01p + self.r12p * np.exp(1j * self.beta)) / \
+                     (1 + self.r01p * self.r12p * np.exp(1j * self.beta))
 
         #S-Polarized Equations
-        self.r01s = (np.cos(x) - (self.n - 1j * self.k) * np.cos(self.theta1)) / (np.cos(x) + (self.n - 1j * \
-            self.k) * np.cos(self.theta1))
+        self.r01s = (np.cos(x) - (self.n - 1j * self.k) * np.cos(self.theta1)) / \
+                    (np.cos(x) + (self.n - 1j * self.k) * np.cos(self.theta1))
         self.r12s = ((self.n - 1j * self.k) * np.cos(self.theta1) - (self.m - 1j * self.l) * np.cos(self.theta2)) / \
-            ((self.n - 1j * self.k) * np.cos(self.theta1) + (self.m - 1j * self.l) * np.cos(self.theta2))
-        self.rstot = (self.r01s + self.r12s * np.exp(1j * self.beta)) / (1 + self.r01s * self.r12s * \
-            np.exp(1j * self.beta))
+                    ((self.n - 1j * self.k) * np.cos(self.theta1) + (self.m - 1j * self.l) * np.cos(self.theta2))
+        self.rstot = (self.r01s + self.r12s * np.exp(1j * self.beta)) / \
+                     (1 + self.r01s * self.r12s * np.exp(1j * self.beta))
 
         #Split Function Into Real and Complex Components
         return np.append(np.real(self.rptot / self.rstot), np.imag(self.rptot / self.rstot))
