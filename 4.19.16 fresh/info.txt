@@ -1,0 +1,8 @@
+mgb2 - fit thickness - 40 nm
+sic - 390000 nm
+
+Fit Psi with 40,50,55,60
+Gives 48.03 +- 1.947868 with MSE 0.05
+
+Fit Delta with 40,50,55,60
+Gives 37.42 +- 1.848754 with MSE 0.04
