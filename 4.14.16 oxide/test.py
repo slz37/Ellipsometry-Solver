@@ -1,7 +1,8 @@
 '''
-Example script for MgB2 deposition on SiC and measure immediately after to
-avoid an oxide layer forming on top. This is an example of a single layer film.
-MgB2 thickness of 40 nm was determined by AFM to confirm that this code works.
+Example script for MgB2 deposition on SiC and measured at a later time after an
+oxide layer formed on top. This is an example of a double layer film.
+MgO thickness of 2 nm was determined through estimation. MgB2 thickness of
+46 nm was determined by AFM to confirm that this code works.
 Read info.txt for more details.
 '''
 
