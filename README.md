@@ -9,9 +9,10 @@ A single layer example is provided. The test.py script inside 4.19.16 fresh fold
 
 ```
 MgB2:
-	d:  40.07819119874984
-  
-	MSE:  0.00018731738
+	k:  2.108450209193739 ± 0.061766547404060325
+	d:  39.95075039115975 ± 2.355272768402803
+
+	MSE:  0.00018533485
 ```
 
 Current status: Should work for single layer films (substrate + top layer), e.g. MgB2 on SiC, for fitting any combination of n, k, d of the top layer. Currently working on implementing this for double layer films (substrate + mid + top layer), e.g. MgO on MgB2 on SiC, and possibly generalizing to any n-layer film.
