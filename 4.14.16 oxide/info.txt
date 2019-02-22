@@ -1,0 +1,6 @@
+MgO - 2 nm
+MgB2 - fit thickness - 46 nm
+SiC - 250000 nm
+
+Fit Psi with 30,35,40,55,70
+Gives 44.58 +- 1.261373 nm with MSE 0.02
