@@ -98,6 +98,11 @@ class layer:
             print('Material_Information.txt not found, use save_material to create one.')
             return
 
+        #Don't update if doesn't exist
+        if not (self.name in list(data['Material'])):
+            print('Material not found in file, use save_material() to add it.')
+            return
+
         #Find index of material and change n/k values
         index = data[data['Material'] == self.name].index.item()
         data.at[index, 'n'] = self.n
