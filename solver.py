@@ -1,12 +1,4 @@
 '''
-                            Table of Layer Information
-                    Layer   - Description       - Variables
-                    Layer 0 - Air               - x, (n = 1, k = 0)
-                    Layer 1 - Film Layer        - theta1, n, k, d
-                    Layer 2 - Substrate Layer   - theta2, m, l
-'''
-
-'''
 We have rho values calculated from delta and psi, and
 rho = r_p / r_s
 
@@ -66,11 +58,23 @@ class layer_functions():
     def __init__(self, layers):
         #Constants
         self.lamb = 632.8        #Wavelength of laser
-        self.m = layers[0].n     #Substrate Layer n
-        self.l = layers[0].k     #Substrate Layer k
         self.layers = layers
+        self.sub_n = layers[0].n     #Substrate Layer n
+        self.sub_k = layers[0].k     #Substrate Layer k
+        
+        if len(layers) == 3:
+            self.top_n = layers[2].n     #Top Layer n
+            self.top_k = layers[2].k     #Top Layer k
+            self.top_d = layers[2].d     #Top layer d
         
     def single_layer(self, x, *guess):
+        '''
+                            Table of Layer Information
+                    Layer   - Description       - Variables
+                    Layer 0 - Air               - x, (n = 1, k = 0 both not in equs)
+                    Layer 1 - Film Layer        - theta1, n, k, d
+                    Layer 2 - Substrate Layer   - theta2, n, k
+        '''
         #Possible Variables to Fit  - always organized as [n, k, d]
         if self.layers[1].fit_n:
             self.n = guess[0]
@@ -95,7 +99,7 @@ class layer_functions():
             
         #Theta Equations
         self.theta1 = np.arcsin(np.sin(x) / (self.n - 1j * self.k))
-        self.theta2 = np.arcsin(np.sin(x) / (self.m - 1j * self.l))
+        self.theta2 = np.arcsin(np.sin(x) / (self.sub_n - 1j * self.sub_k))
 
         #Beta Equation = -2gamma
         self.beta = -4 * np.pi * self.d * (self.n - 1j * self.k) * np.cos(self.theta1) / self.lamb
@@ -103,91 +107,85 @@ class layer_functions():
         #P-Polarized Equations
         self.r01p = ((self.n - 1j * self.k) * np.cos(x) - np.cos(self.theta1)) / \
                     ((self.n - 1j * self.k) * np.cos(x) + np.cos(self.theta1))
-        self.r12p = ((self.m - 1j * self.l) * np.cos(self.theta1) - (self.n - 1j * self.k) * np.cos(self.theta2)) / \
-                    ((self.m - 1j * self.l) * np.cos(self.theta1) + (self.n - 1j * self.k) * np.cos(self.theta2))
+        self.r12p = ((self.sub_n - 1j * self.sub_k) * np.cos(self.theta1) - (self.n - 1j * self.k) * np.cos(self.theta2)) / \
+                    ((self.sub_n - 1j * self.sub_k) * np.cos(self.theta1) + (self.n - 1j * self.k) * np.cos(self.theta2))
         self.rptot = (self.r01p + self.r12p * np.exp(1j * self.beta)) / \
                      (1 + self.r01p * self.r12p * np.exp(1j * self.beta))
 
         #S-Polarized Equations
         self.r01s = (np.cos(x) - (self.n - 1j * self.k) * np.cos(self.theta1)) / \
                     (np.cos(x) + (self.n - 1j * self.k) * np.cos(self.theta1))
-        self.r12s = ((self.n - 1j * self.k) * np.cos(self.theta1) - (self.m - 1j * self.l) * np.cos(self.theta2)) / \
-                    ((self.n - 1j * self.k) * np.cos(self.theta1) + (self.m - 1j * self.l) * np.cos(self.theta2))
+        self.r12s = ((self.n - 1j * self.k) * np.cos(self.theta1) - (self.sub_n - 1j * self.sub_k) * np.cos(self.theta2)) / \
+                    ((self.n - 1j * self.k) * np.cos(self.theta1) + (self.sub_n - 1j * self.sub_k) * np.cos(self.theta2))
         self.rstot = (self.r01s + self.r12s * np.exp(1j * self.beta)) / \
                      (1 + self.r01s * self.r12s * np.exp(1j * self.beta))
 
         #Split Function Into Real and Complex Components
         return np.append(np.real(self.rptot / self.rstot), np.imag(self.rptot / self.rstot))
 
-    #Double layer not yet converted from Matlab code
-    '''
-    def double_layer(self, x, guess):
-        #Possible Variables to Fit
+    def double_layer(self, x, *guess):
+        '''
+                            Table of Layer Information
+                    Layer   - Description       - Variables
+                    Layer 0 - Air               - x, (n = 1, k = 0 both not in eqs)
+                    Layer 1 - First Film Layer  - theta1, n, k, d1
+                    Layer 2 - Second Film Layer - theta2, m, l, d2
+                    Layer 3 - Substrate Layer   - theta3, n, k
+        '''
+        #Possible Variables to Fit  - always organized as [n, k, d]
         if self.layers[1].fit_n:
-            self.n = self.layers[1].n_guess
+            self.n = guess[0]
         else:
             self.n = self.layers[1].n
 
-        if self.layers[1].fit_k:
-            self.k = self.layers[1].k_guess
+        if self.layers[1].fit_n and self.layers[1].fit_k:
+            self.k = guess[1]
+        elif self.layers[1].fit_k:
+            self.k = guess[0]
         else:
             self.k = self.layers[1].k
-            
-        if self.layers[1].fit_d:
-            self.d = guess
+
+        if (self.layers[1].fit_n and self.layers[1].fit_k) and self.layers[1].fit_d:
+            self.d = guess[2]
+        elif (self.layers[1].fit_n or self.layers[1].fit_k) and self.layers[1].fit_d:
+            self.d = guess[1]
+        elif self.layers[1].fit_d:
+            self.d = guess[0]
         else:
             self.d = self.layers[1].d
-        #Possible Variables to Fit
-        if t(7) ~= -1
-            m = t(7);            #Second Film Layer n - not fit
-        else
-            m = a(2);               #Second Film Layer n - fit
-
-        if t(6) ~= -1
-            l = t(6);            #Second Film Layer k - not fit
-        else
-            l = a(1);               #Second Film Layer k - fit
-
-        if t(8) ~= -1
-            d2 = t(8);           #Second Film Layer d - not fit
-        else
-            d2 = a(3);              #Second Film Layer d - fit
 
         #Theta Equations
-        self.theta1 = arcsin(np.sin(x) / (self.n - 1j * self.k));
-        self.theta2 = arcsin(np.sin(x) / (self.m - 1j * self.l));
-        self.theta3 = arcsin(np.sin(x) / (self.o - 1j * self.j));
+        self.theta1 = np.arcsin(np.sin(x) / (self.top_n - 1j * self.top_k))
+        self.theta2 = np.arcsin(np.sin(x) / (self.n - 1j * self.k))
+        self.theta3 = np.arcsin(np.sin(x) / (self.sub_n - 1j * self.sub_n))
 
         #Beta Equations
-        self.beta1 = -4 * np.pi * self.d * (self.n - 1j * self.k) * np.cos(self.theta1) / self.lamb;
-        self.beta2 = -4 * np.pi * self.d2 * (self.m - 1j * self.l) * np.cos(self.theta2) / self.lamb;
+        self.beta1 = -4 * np.pi * self.top_d * (self.top_n - 1j * self.top_k) * np.cos(self.theta1) / self.lamb
+        self.beta2 = -4 * np.pi * self.d * (self.n - 1j * self.k) * np.cos(self.theta2) / self.lamb
 
         #P-Polarized Equations
-        self.r01p = ((self.n - 1j * self.k) * np.cos(x) - np.cos(self.theta1)) / ((self.n - 1j * self.k) * \
-            np.cos(x) + np.cos(self.theta1));
-        self.r12p = ((self.m - 1j * self.l) * np.cos(self.theta1) - (self.n - 1j * self.k) * \
-            np.cos(self.theta2)) / ((self.m - 1j * self.l) * np.cos(self.theta1) + (self.n - 1j * self.k) * \
-            np.cos(self.theta2));
-        self.r23p = ((self.o - 1j * self.j) * np.cos(self.theta2) - (self.m - 1j * self.l) * \
-            np.cos(self.theta3)) / ((self.o - 1j * self.j) * np.cos(self.theta2) + (self.m - 1j * self.l) * \
-            np.cos(self.theta3));
-        self.r123p = (self.r12p + self.r23p * np.exp(1j * self.beta2)) / (1 + self.r12p * self.r23p * \
-           np.exp(1j * self.beta2));
-        self.rptot = (self.r01p + self.r123p *np.exp(1j * self.beta1)) / (1 + self.r01p * self.r123p * \
-           np.exp(1j * beta1));
+        self.r01p = ((self.top_n - 1j * self.top_k) * np.cos(x) - np.cos(self.theta1)) / \
+                    ((self.top_n - 1j * self.top_k) * np.cos(x) + np.cos(self.theta1))
+        self.r12p = ((self.n - 1j * self.k) * np.cos(self.theta1) - (self.top_n - 1j * self.top_k) * np.cos(self.theta2)) / \
+                    ((self.n - 1j * self.k) * np.cos(self.theta1) + (self.top_n - 1j * self.top_k) * np.cos(self.theta2))
+        self.r23p = ((self.sub_n - 1j * self.sub_k) * np.cos(self.theta2) - (self.n - 1j * self.k) * np.cos(self.theta3)) / \
+                    ((self.sub_n - 1j * self.sub_k) * np.cos(self.theta2) + (self.n - 1j * self.k) * np.cos(self.theta3))
+        self.r123p = (self.r12p + self.r23p * np.exp(1j * self.beta2)) / \
+                     (1 + self.r12p * self.r23p * np.exp(1j * self.beta2))
+        self.rptot = (self.r01p + self.r123p * np.exp(1j * self.beta1)) / \
+                     (1 + self.r01p * self.r123p * np.exp(1j * self.beta1))
 
         #S-Polarized Equations
-        self.r01s = (np.cos(x) - (self.n - 1j * self.k) * np.cos(self.theta1)) / (np.cos(x) + (self.n - 1j * \
-            self.k) * np.cos(self.theta1));
-        self.r12s = ((self.n - 1j * self.k) * np.cos(self.theta1) - (self.m - 1j * self.l) * np.cos(self.theta2)) / \
-            ((self.n - 1j * self.k) * np.cos(self.theta1) + (self.m - 1j * self.l) * np.cos(self.theta2));
-        self.r23s = ((self.m - 1j * self.l) * np.cos(self.theta2) - (self.o - 1j * self.j) * np.cos(self.theta3)) / \
-            ((self.m - 1j * self.l) * np.cos(self.theta2) + (self.o - 1j * self.j) * np.cos(self.theta3));
-        self.r123s = (self.r12s + self.r23s * np.exp(1j * self.beta2)) / (1 + self.r12s * self.r23s * \
-           np.exp(1j * self.beta2));
-        self.rstot = (self.r01s + self.r123s * np.exp(1j * self.beta1)) / (1 + self.r01s * self.r123s * \
-           np.exp(1j * self.beta1));
+        self.r01s = (np.cos(x) - (self.top_n - 1j * self.top_k) * np.cos(self.theta1)) / \
+                    (np.cos(x) + (self.top_n - 1j * self.top_k) * np.cos(self.theta1))
+        self.r12s = ((self.top_n - 1j * self.top_k) * np.cos(self.theta1) - (self.n - 1j * self.k) * np.cos(self.theta2)) / \
+                    ((self.top_n - 1j * self.top_k) * np.cos(self.theta1) + (self.n - 1j * self.k) * np.cos(self.theta2))
+        self.r23s = ((self.n - 1j * self.k) * np.cos(self.theta2) - (self.sub_n - 1j * self.sub_k) * np.cos(self.theta3)) / \
+                    ((self.n - 1j * self.k) * np.cos(self.theta2) + (self.sub_n - 1j * self.sub_k) * np.cos(self.theta3))
+        self.r123s = (self.r12s + self.r23s * np.exp(1j * self.beta2)) / \
+                     (1 + self.r12s * self.r23s * np.exp(1j * self.beta2))
+        self.rstot = (self.r01s + self.r123s * np.exp(1j * self.beta1)) / \
+                     (1 + self.r01s * self.r123s * np.exp(1j * self.beta1))
 
         #Split Function Into Real and Complex Components
         return np.append(np.real(self.rptot / self.rstot), np.imag(self.rptot / self.rstot))
-'''

@@ -68,7 +68,7 @@ if __name__ == '__main__':
     #Get necessary data for fitting functions
     angles = 'all'
 
-    #Single layer test
+                        #Single layer test#
     phi, psi, delta, rho = load_data('4.19.16 fresh', angles)
 
     #Setup Layers
@@ -88,18 +88,28 @@ if __name__ == '__main__':
     #Should always be setup substrate->layer 1->...->layer n
     fit_vars, cov = solve(phi, rho, layers)
 
-                    #Double does not function yet
-##    #Double layer test
-##    phi, psi, delta, rho = load_data('4.14.16 oxide', angles)
-##
-##    #Setup layers
-##    top = layer('MgO', 2)
-##    mid = layer('MgB2', 40)
-##    bot = layer('SiC', 250000)
-##    mid.set_fit_variables([['d', 45]])
-##    
-##    #Fit to function - put these in order from bot - top
-##    fit = solve(phi, rho, [bot, mid, top])
+                        #Double layer test#
+    phi, psi, delta, rho = load_data('4.14.16 oxide', angles)
+
+    #Setup layers
+    top = layer('MgO', 2)
+    mid = layer('MgB2', 45)
+    bot = layer('SiC', 250000)
+    
+    #Test different combinations of fit variables
+    test_vars = ['d']
+    if 'd' in test_vars:
+        mid.set_fit_variables([['d', 46]])
+    if 'k' in test_vars:
+        mid.set_fit_variables([['k', 2.123]])
+    if 'n' in test_vars:
+        mid.set_fit_variables([['n', 1.017]])
+    layers = [bot, top]
+
+    layers = [bot, mid, top]
+    
+    #Fit to function - put these in order from bot - top
+    fit_vars, cov = solve(phi, rho, layers)
 
     #Plot fitted functions with data points
     plot(phi, rho, fit_vars, cov, layers)    
