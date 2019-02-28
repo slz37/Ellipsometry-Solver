@@ -128,8 +128,8 @@ class layer_functions():
                             Table of Layer Information
                     Layer   - Description       - Variables
                     Layer 0 - Air               - x, (n = 1, k = 0 both not in eqs)
-                    Layer 1 - First Film Layer  - theta1, n, k, d1
-                    Layer 2 - Second Film Layer - theta2, m, l, d2
+                    Layer 1 - First Film Layer  - theta1, n, k, d
+                    Layer 2 - Second Film Layer - theta2, n, k, d
                     Layer 3 - Substrate Layer   - theta3, n, k
         '''
         #Possible Variables to Fit  - always organized as [n, k, d]
