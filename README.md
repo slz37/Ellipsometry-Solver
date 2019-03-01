@@ -5,9 +5,9 @@ Numerically solves the ellipsometry equations to find the thickness, n, and/or k
 
 These values can be used with equations from https://jameslandry.files.wordpress.com/2012/02/09-appendix-b.pdf to numerically solve for the selected parameters. It will then output the value, MSE, and a plot of the fit along with the data gathered.
 
-Current status: Should work for single layer films (substrate + top layer), e.g. MgB2 on SiC, for fitting any combination of n, k, d of the top layer. Currently working on implementing this for double layer films (substrate + mid + top layer), e.g. MgO on MgB2 on SiC, and possibly generalizing to any n-layer film.
+Current status: Should work for single layer films (substrate + top layer), e.g. MgB2 on SiC, for fitting any combination of n, k, d of the top layer. Functionality for double layer films (substrate + mid + top layer), e.g. MgO on MgB2 on SiC, has now also been introduced. Next step is to generalize to any n-layer film.
 
-A single layer example is provided. The test.py script inside 4.19.16 fresh folder should be run without any changes necessary. A double layer example is also provided despite the code not being able to numerically solve this scenario yet. Output should look like below:
+A single layer example is provided. The test.py script inside 4.19.16 fresh folder should be run without any changes necessary. Similarly, a double layer example is also provided. Output for the single layer should look like below:
 
 ```
 MgB2:
